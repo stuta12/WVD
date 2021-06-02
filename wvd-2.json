@@ -48,13 +48,9 @@
 			"defaultValue": "[newGuid()]"
 		},
 		"identity": {
-            "type": "UserAssigned",
+            	"type": "UserAssigned",
                     "userAssignedIdentities": {
-                    "/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourceGroups/rg_wvd_azureimagebuilder/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aibIdentity": {
-						"principalId": "dcc16be0-4c4c-410f-abde-36097d830423",
-						"clientId": "dcc16be0-4c4c-410f-abde-36097d830423"
-					}
-                        
+                    "/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourceGroups/rg_wvd_azureimagebuilder/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aibIdentity": {}
         }
 		}
 	},
@@ -66,7 +62,7 @@
 		{
 			"name": "[variables('imageTemplateName')]",
 			"type": "Microsoft.VirtualMachineImages/imageTemplates",
-			"apiVersion": "2019-05-01-preview",
+			"apiVersion": "2020-02-14",
 			"location": "[resourcegroup().location]",
 			"dependsOn": [
 			],
