@@ -1,0 +1,106 @@
+{
+    "properties": {
+        "source": {
+            "offer": "windows-10",
+            "publisher": "MicrosoftWindowsDesktop",
+            "sku": "20h2-evd",
+            "type": "PlatformImage",
+            "version": "latest (19042.985.2105052112)"
+        },
+        "customize": [
+            {
+                "name": "installFsLogix",
+                "runAsSystem": true,
+                "runElevated": true,
+                "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/0_installConfFsLogix.ps1",
+                "sha256Checksum": "aaa37d450195e12feac2e2deaac8bb0c1d8bd8d218351b3843f95b40a640658d",
+                "type": "PowerShell"
+            },
+            {
+                "name": "OptimizeOS",
+                "runAsSystem": true,
+                "runElevated": true,
+                "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1",
+                "sha256Checksum": "38dd9c5da07b88abc459202ed16d796e2c448383316ff6d60a7048d62bcb3784",
+                "type": "PowerShell"
+            },
+            {
+                "name": "",
+                "restartCheckCommand": "write-host 'restarting post Optimizations'",
+                "restartCommand": "",
+                "restartTimeout": "5m",
+                "type": "WindowsRestart"
+            },
+            {
+                "name": "Install Teams",
+                "runAsSystem": true,
+                "runElevated": true,
+                "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/2_installTeams.ps1",
+                "sha256Checksum": "bc7f1278074823759a4297ded9884123de8b466e579bacb1a555f0889b47712d",
+                "type": "PowerShell"
+            },
+            {
+                "name": "",
+                "restartCheckCommand": "write-host 'restarting post Teams Install'",
+                "restartCommand": "",
+                "restartTimeout": "5m",
+                "type": "WindowsRestart"
+            },
+            {
+                "filters": [
+                    "exclude:$_.Title -like '*Preview*'",
+                    "include:$true"
+                ],
+                "name": "",
+                "searchCriteria": "IsInstalled=0",
+                "type": "WindowsUpdate",
+                "updateLimit": 40
+            }
+        ],
+        "distribute": [
+            {
+                "artifactTags": {
+                    "baseosimg": "windows10",
+                    "source": "wvd10"
+                },
+                "excludeFromLatest": false,
+                "galleryImageId": "/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourceGroups/rg-dev-azureimagebuilder/providers/Microsoft.Compute/galleries/sigdevazureimagebuilder/images/win10wvd",
+                "replicationRegions": [
+                    "westus2",
+                    "australiaeast"
+                ],
+                "runOutputName": "sigOutput",
+                "type": "SharedImage"
+            }
+        ],
+        "provisioningState": "Succeeded",
+        "lastRunStatus": {
+            "startTime": "2021-05-28T00:33:28.330093504Z",
+            "endTime": "2021-05-28T01:35:20.572722143Z",
+            "runState": "Succeeded",
+            "message": ""
+        },
+        "buildTimeoutInMinutes": 120,
+        "vmProfile": {
+            "vmSize": "Standard_D2_v2",
+            "osDiskSizeGB": 127
+        }
+    },
+    "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+            "/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourcegroups/rg-dev-azureimagebuilder/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-dev-azureimagebuilder": {
+                "principalId": "91620333-9571-466b-9581-f07cb03fd1fe",
+                "clientId": "f8e9088a-73ed-4bf1-a49f-a05db345d676"
+            }
+        }
+    },
+    "id": "/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourcegroups/rg-dev-azureimagebuilder/providers/Microsoft.VirtualMachineImages/imageTemplates/wvd10ImageTemplate01",
+    "name": "wvd10ImageTemplate01",
+    "type": "Microsoft.VirtualMachineImages/imageTemplates",
+    "location": "westus2",
+    "tags": {
+        "imagebuilderTemplate": "AzureImageBuilderSIG",
+        "userIdentity": "enabled"
+    }
+}
