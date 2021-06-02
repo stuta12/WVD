@@ -12,7 +12,7 @@
 		},
 		"sku": {
 			"type": "string",
-			"defaultValue": "20H1-evd"
+			"defaultValue": "21H1-evd"
 		},
 		"version": {
 			"type": "string",
@@ -50,7 +50,7 @@
 		"identity": {
             		"type": "UserAssigned",
                     	"userAssignedIdentities": {
-                    	"<imgBuilderId>": {}
+                    	"/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourcegroups/rg_wvd_azureimagebuilder/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aibIdentity": {}
                         
         	}
 		}
