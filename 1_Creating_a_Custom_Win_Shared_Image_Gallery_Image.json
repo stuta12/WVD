@@ -28,13 +28,7 @@
             "imagebuilderTemplate": "AzureImageBuilderSIG",
             "userIdentity": "enabled"
                 },
-            "identity": {
-                "type": "UserAssigned",
-                        "userAssignedIdentities": {
-                        "<imgBuilderId>": {}
-                            
-                    }
-                    },
+            
         
         "properties": {
             "buildTimeoutInMinutes" : 100,
