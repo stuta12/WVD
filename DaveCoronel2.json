@@ -1,0 +1,99 @@
+{
+    "type": "Microsoft.VirtualMachineImages",
+    "apiVersion": "2020-02-14",
+    "location": "westus2",
+    "dependsOn": [],
+    "tags": {
+        "imagebuilderTemplate": "AzureImageBuilderSIG",
+        "userIdentity": "enabled"
+            },
+        "identity": {
+            "type": "UserAssigned",
+                    "userAssignedIdentities": {
+                    "/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourcegroups/rg_wvd_azureimagebuilder/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aibIdentity": {}
+                        
+                }
+                },
+    
+    "properties": {
+
+        "buildTimeoutInMinutes" : 80,
+
+        "vmProfile": 
+            {
+            "vmSize": "Standard_D1_v2",
+            "osDiskSizeGB": 30
+            },
+        
+        "source": {
+            "type": "PlatformImage",
+                "publisher": "Canonical",
+                "offer": "0001-com-ubuntu-pro-bionic",
+                "sku": "pro-18_04-lts",
+                "version": "latest",
+		"planInfo": {
+                    "planName": "pro-18_04-lts",
+                    "planProduct": "0001-com-ubuntu-pro-bionic",
+                    "planPublisher": "canonical"
+                }
+        },
+        "customize": [
+            {
+            "type": "Shell",
+            "name": "WaitForUAtokenAutoAttach",
+            "inline": [
+                "sudo ua status --wait"
+            ]
+        },
+
+        {
+            "type": "Shell",
+            "name": "EnableCISfeature",
+            "inline": [
+            	"sudo ua enable cis --beta"
+            ]
+        },
+
+        {
+            "type": "Shell",
+            "name": "RunCIShardening",
+            "inline": [
+                "sudo /usr/share/ubuntu-scap-security-guides/cis-hardening/Canonical_Ubuntu_18.04_CIS-harden.sh lvl1_server"
+            ]
+        },
+
+        {
+            "type": "Shell",
+            "name": "UDFworkaroundForAzureVMbooting",
+            "inline": [
+                "sudo rm -f /etc/modprobe.d/Canonical_Ubuntu_CIS_rule-1.1.1.7.conf"
+            ]
+        },
+
+	{
+            "type": "Shell",
+            "name": "DetachUA",
+            "inline": [
+                "sudo ua detach --assume-yes && sudo rm -rf /var/log/ubuntu-advantage.log"
+            ]
+     	}
+
+        ],
+        "distribute": 
+        [
+            {   
+                "type": "SharedImage",
+                "galleryImageId": "/subscriptions/<your subscription ID>/resourceGroups/ibLinuxGalleryRG/providers/Microsoft.Compute/galleries/myIbGallery/images/myIbImageDef",
+                "runOutputName": "aibLinuxSIG",
+                "artifactTags": {
+                    "source": "azureVmImageBuilder",
+                    "baseosimg": "ubuntu1804"
+                },
+                "replicationRegions": [
+                  "westus2",
+                  "eastus"
+                ]
+            }
+        ]
+    }
+}
