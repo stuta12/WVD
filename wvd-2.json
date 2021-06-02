@@ -18,7 +18,7 @@
 			"type": "string",
 			"defaultValue": "latest",
 			"metadata": {
-				"description": "Version of the image, can be found with powershell: Get-AzVMImage -Location westeurope -PublisherName MicrosoftWindowsDesktop -Offer windows-10 -Skus 20h1-evd"
+				"description": "Version of the image, can be found with powershell: Get-AzVMImage -Location australiaeast -PublisherName MicrosoftWindowsDesktop -Offer windows-10 -Skus 21h1-evd"
 			}
 		},
 		"ScriptUri": {
@@ -48,11 +48,14 @@
 			"defaultValue": "[newGuid()]"
 		},
 		"identity": {
-            		"type": "UserAssigned",
-                    	"userAssignedIdentities": {
-                    	"/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourcegroups/rg_wvd_azureimagebuilder/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aibIdentity": {}
+            "type": "UserAssigned",
+                    "userAssignedIdentities": {
+                    "/subscriptions/fa9c96de-0349-4a5a-9655-9707697da215/resourceGroups/rg_wvd_azureimagebuilder/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aibIdentity": {
+						"principalId": "dcc16be0-4c4c-410f-abde-36097d830423",
+						"clientId": "dcc16be0-4c4c-410f-abde-36097d830423"
+					}
                         
-        	}
+        }
 		}
 	},
 	"variables": {
