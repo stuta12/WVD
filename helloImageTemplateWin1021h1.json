@@ -10,7 +10,7 @@
         "identity": {
             "type": "UserAssigned",
                     "userAssignedIdentities": {
-                    "<imgBuilderId>": {}
+                    "01": {}
                         
                 }
                 },
