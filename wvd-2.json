@@ -46,7 +46,7 @@
 			"type": "string",
 			"defaultValue": "",
 			"defaultValue": "[newGuid()]"
-		}
+		},
 		"identity":{}
 	},
 	"variables": {
