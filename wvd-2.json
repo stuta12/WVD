@@ -47,7 +47,13 @@
 			"defaultValue": "",
 			"defaultValue": "[newGuid()]"
 		},
-		"identity":{}
+		"identity": {
+            		"type": "UserAssigned",
+                    	"userAssignedIdentities": {
+                    	"<imgBuilderId>": {}
+                        
+        	}
+		}
 	},
 	"variables": {
 		"imageTemplateName": "[concat('AIB',uniqueString('deployment().name',parameters('randomGUID')))]",
