@@ -1,10 +1,28 @@
 # Script to setup golden image with Azure Image Builder
 
-# Create dir for source files
+# Set global variables
+$storageAccount = "aibstorscript1623209451"
+$container = "aibfiles"
 $filePath = "C:\AIBFiles"
+
+# Create dir for source files on local machine
 if (!(Test-Path $filePath))
 {
     New-Item -Path $filePath -ItemType Directory -Force | Out-Null
+}
+
+# Function to check if app is installed before continuing script
+Function CheckAppInstalled ($programName)
+{
+    $WMICheck = (Get-WMIObject -Query "SELECT * FROM Win32_Product Where Name Like '%$programName%'")
+    if (!([string]::IsNullOrEmpty($WMICheck)))
+    {
+        Return $true
+    }
+    else
+    {
+        return $false
+    }
 }
 
 # Install Google Chrome Enterprise
@@ -15,3 +33,29 @@ Expand-Archive -Path "$filePath\$appName.zip" -DestinationPath "$filePath\$appNa
 $installFile = "$filePath\$appName\Installers\GoogleChromeStandaloneEnterprise64.msi"
 $argList = '/i', $installFile, '/qn', '/norestart'
 Start-Process -FilePath msiexec.exe -ArgumentList $argList -PassThru -Verb "RunAs"
+$installedName = "Google Chrome"
+$isInstalled = CheckAppInstalled ($installedName)
+
+While ($isInstalled -ne $true)
+{
+    Start-Sleep -Seconds 10
+    # Check again if app is installed
+    $isInstalled = CheckAppInstalled ($installedName)
+}
+
+# Install Citrix VDA
+$fileName = "VDAServerSetup_2103.exe"
+$BlobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName")
+$argList = '/components VDA', '/controllers "server1 server2"', '/masterimage', '/noreboot', '/quiet', '/virtualmachine', '/enable_hdx_ports', '/enable_hdx_udp_ports', '/enable_real_time_transport', '/enable_remote_assistance', '/exclude "Citrix Personalization for App-V - VDA"'
+$installFile = "$filePath\$fileName"
+Invoke-Expression -Command "$installFile $argList"
+$installedName = "Citrix Virtual Desktop Agent - x64"
+$isInstalled = CheckAppInstalled ($installedName)
+
+While ($isInstalled -ne $true)
+{
+    Start-Sleep -Seconds 10
+    # Check again if app is installed
+    $isInstalled = CheckAppInstalled ($installedName)
+}
