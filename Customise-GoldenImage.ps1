@@ -165,7 +165,8 @@ Set-WinSystemLocale en-AU
 Set-WinUserLanguageList -LanguageList en-AU -Force
 Set-Culture -CultureInfo en-AU
 Set-WinHomeLocation -GeoId 12
-Set-TimeZone -Name "AUS Eastern Standard Time"
+# Set-TimeZone -Name "AUS Eastern Standard Time"
+tzutil.exe /s "AUS Eastern Standard Time"
 
 # Remove AppX packages
 $ProvisionedAppPackageNames = @(
@@ -210,3 +211,7 @@ Expand-Archive -Path "$filePath\$appName.zip" -DestinationPath "$filePath\$appNa
 $installFile = "$filePath\$appName\CtxOptimizerEngine.ps1"
 
 Invoke-Expression -Command "powershell.exe -ExecutionPolicy Bypass -File $installFile -Source Citrix_Windows_10_2009.xml -Mode Execute"
+
+# Add VM parameter to Azure Sysprep script - this prevents the first login from hanging on "Windows Modules Installer"
+((Get-Content -path C:\DeprovisioningScript.ps1 -Raw) -replace 'Sysprep.exe /oobe /generalize /quiet /quit', 'Sysprep.exe /oobe /generalize /quit /mode:vm' ) `
+| Set-Content -Path C:\DeprovisioningScript.ps1
