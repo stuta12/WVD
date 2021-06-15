@@ -6,38 +6,33 @@ $container = "aibfiles"
 $filePath = "C:\AIBFiles"
 
 # Create dir for source files on local machine
-if (!(Test-Path $filePath))
-{
-    New-Item -Path $filePath -ItemType Directory -Force | Out-Null
+if (!(Test-Path $filePath)) {
+    New-Item -Path "$filePath\Logs" -ItemType Directory -Force | Out-Null
 }
 
 # Function to check if app is installed before continuing script
-Function CheckAppInstalled ($programName)
-{
+Function CheckAppInstalled ($programName) {
     $WMICheck = (Get-WMIObject -Query "SELECT * FROM Win32_Product Where Name Like '%$programName%'")
-    if (!([string]::IsNullOrEmpty($WMICheck)))
-    {
-        Return $true
+    if (!([string]::IsNullOrEmpty($WMICheck))) {
+        return $true
     }
-    else
-    {
+    else {
         return $false
     }
 }
 
 # Install Google Chrome Enterprise
-$appName = "GoogleChromeEnterprise"
-$URI = "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B0FAA6D8C-0109-84FD-D741-1390BD720A45%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue%26ap%3Dx64-stable-statsdef_0%26brand%3DGCEB/dl/chrome/install/GoogleChromeEnterpriseBundle64.zip"
-Invoke-WebRequest -Uri $URI -OutFile "$filePath\$appName.zip"
-Expand-Archive -Path "$filePath\$appName.zip" -DestinationPath "$filePath\$appName" -Force
-$installFile = "$filePath\$appName\Installers\GoogleChromeStandaloneEnterprise64.msi"
-$argList = '/i', $installFile, '/qn', '/norestart'
+$fileName = "GoogleChromeStandaloneEnterprise64.msi"
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName"
+$installFile = "$filePath\$fileName"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, $installFile)
+$argList = '/i', $installFile, '/qn', '/norestart', "/l*v `"$filePath\Logs\Install-GoogleChromeEnterprise.log`""
 Start-Process -FilePath msiexec.exe -ArgumentList $argList -PassThru -Verb "RunAs"
 $installedName = "Google Chrome"
 $isInstalled = CheckAppInstalled ($installedName)
 
-While ($isInstalled -ne $true)
-{
+# Check if app is installed
+While ($isInstalled -ne $true) {
     Start-Sleep -Seconds 10
     # Check again if app is installed
     $isInstalled = CheckAppInstalled ($installedName)
@@ -45,17 +40,159 @@ While ($isInstalled -ne $true)
 
 # Install Citrix VDA
 $fileName = "VDAServerSetup_2103.exe"
-$BlobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName"
-(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName")
-$argList = '/components VDA', '/controllers "server1 server2"', '/masterimage', '/noreboot', '/quiet', '/virtualmachine', '/enable_hdx_ports', '/enable_hdx_udp_ports', '/enable_real_time_transport', '/enable_remote_assistance', '/exclude "Citrix Personalization for App-V - VDA"'
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName"
 $installFile = "$filePath\$fileName"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, $installFile)
+$argList = '/components VDA', '/controllers "server1.domain server2.domain"', '/masterimage', '/noreboot', '/quiet', '/virtualmachine', '/enable_hdx_ports', '/enable_hdx_udp_ports', `
+    '/enable_real_time_transport', '/enable_remote_assistance', '/exclude "Citrix Personalization for App-V - VDA"', "/logpath `"$filePath\Logs\Install-CitrixVDA.log`""
 Invoke-Expression -Command "$installFile $argList"
 $installedName = "Citrix Virtual Desktop Agent - x64"
 $isInstalled = CheckAppInstalled ($installedName)
 
-While ($isInstalled -ne $true)
-{
+# Check if app is installed
+While ($isInstalled -ne $true) {
     Start-Sleep -Seconds 10
     # Check again if app is installed
     $isInstalled = CheckAppInstalled ($installedName)
 }
+
+# Install AU language packs
+$fileName1 = "Microsoft-Windows-Client-Language-Pack_x64_en-gb.cab"
+$fileName2 = "Microsoft-Windows-LanguageFeatures-Basic-en-au-Package~31bf3856ad364e35~amd64~~.cab"
+$fileName3 = "Microsoft-Windows-LanguageFeatures-Handwriting-en-gb-Package~31bf3856ad364e35~amd64~~.cab"
+$fileName4 = "Microsoft-Windows-LanguageFeatures-OCR-en-gb-Package~31bf3856ad364e35~amd64~~.cab"
+$fileName5 = "Microsoft-Windows-LanguageFeatures-Speech-en-au-Package~31bf3856ad364e35~amd64~~.cab"
+$fileName6 = "Microsoft-Windows-LanguageFeatures-TextToSpeech-en-au-Package~31bf3856ad364e35~amd64~~.cab"
+
+# Download .cab files
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName1"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName1")
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName2"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName2")
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName3"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName3")
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName4"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName4")
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName5"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName5")
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName6"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName6")
+
+# Add langugage packs
+Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName1 /LogPath:$filePath\Logs\Install-ClientLanguagePack.log /LogLevel:4
+Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName2 /LogPath:$filePath\Logs\Install-BasicLanguagePack.log /LogLevel:4
+Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName3 /LogPath:$filePath\Logs\Install-HandwritingLanguagePack.log /LogLevel:4
+Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName4 /LogPath:$filePath\Logs\Install-OCRLanguagePack.log /LogLevel:4
+Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName5 /LogPath:$filePath\Logs\Install-SpeechLanguagePack.log /LogLevel:4
+Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName6 /LogPath:$filePath\Logs\Install-TextToSpeechLanguagePack.log /LogLevel:4
+
+# Set machine locale and time zone
+$str = @'
+<?xml version="1.0"?>
+
+-<gs:GlobalizationServices xmlns:gs="urn:longhornGlobalizationUnattend">
+
+<!--User List-->
+
+-<gs:UserList>
+
+<gs:User CopySettingsToSystemAcct="true" CopySettingsToDefaultUserAcct="true" UserID="Current"/>
+
+</gs:UserList>
+
+<!-- user locale -->
+
+-<gs:UserLocale>
+
+<gs:Locale SetAsCurrent="true" Name="en-AU"/>
+
+</gs:UserLocale>
+
+<!-- system locale -->
+
+<gs:SystemLocale Name="en-AU"/>
+
+<!-- GeoID -->
+
+-<gs:LocationPreferences>
+
+<gs:GeoID Value="12"/>
+
+</gs:LocationPreferences>
+
+-<gs:MUILanguagePreferences>
+
+<gs:MUILanguage Value="en-AU"/>
+
+<gs:MUIFallback Value="en-US"/>
+
+</gs:MUILanguagePreferences>
+
+<!-- input preferences -->
+
+-<gs:InputPreferences>
+
+<!--en-AU-->
+
+<gs:InputLanguageID Default="true" ID="0c09:00000409" Action="add"/>
+
+</gs:InputPreferences>
+
+</gs:GlobalizationServices>
+'@
+
+$xml = $ExecutionContext.InvokeCommand.ExpandString($str)
+
+# Set Locale, language etc. 
+& $env:SystemRoot\System32\control.exe "intl.cpl,,/f:`"$xml`""
+
+# Set languages/culture. Not needed perse.
+Set-WinSystemLocale en-AU
+Set-WinUserLanguageList -LanguageList en-AU -Force
+Set-Culture -CultureInfo en-AU
+Set-WinHomeLocation -GeoId 12
+Set-TimeZone -Name "AUS Eastern Standard Time"
+
+# Remove AppX packages
+$ProvisionedAppPackageNames = @(
+    "Microsoft.Messaging"
+    "Microsoft.MicrosoftOfficeHub"
+    "Microsoft.MicrosoftSolitaireCollection"
+    "Microsoft.MixedReality.Portal"
+    "Microsoft.OneConnect"
+    "Microsoft.People"
+    "Microsoft.Print3D"
+    "Microsoft.SkypeApp"
+    "Microsoft.Wallet"
+    "Microsoft.WindowsAlarms"
+    "microsoft.windowscommunicationsapps"
+    "Microsoft.WindowsFeedbackHub"
+    "Microsoft.WindowsMaps"
+    "Microsoft.WindowsSoundRecorder"
+    "Microsoft.Xbox.TCUI"
+    "Microsoft.XboxApp"
+    "Microsoft.XboxGameOverlay"
+    "Microsoft.XboxGamingOverlay"
+    "Microsoft.XboxIdentityProvider"
+    "Microsoft.XboxSpeechToTextOverlay"
+    "Microsoft.YourPhone"
+    "Microsoft.ZuneMusic"
+    "Microsoft.ZuneVideo"
+    "Microsoft.BingWeather"
+    "Microsoft.GetHelp"
+    "Microsoft.Getstarted"
+)
+ 
+foreach ($ProvisionedAppName in $ProvisionedAppPackageNames) {
+    Get-AppxPackage -Name $ProvisionedAppName -AllUsers | Remove-AppxPackage
+    Get-AppXProvisionedPackage -Online | Where-Object DisplayName -EQ $ProvisionedAppName | Remove-AppxProvisionedPackage -Online
+}
+
+# Optimise OS using Citrix Optimizer
+$appName = "CitrixOptimizer"
+$URI = "https://$storageAccount.blob.core.windows.net/$container/$appName.zip"
+Invoke-WebRequest -Uri $URI -OutFile "$filePath\$appName.zip"
+Expand-Archive -Path "$filePath\$appName.zip" -DestinationPath "$filePath\$appName" -Force
+$installFile = "$filePath\$appName\CtxOptimizerEngine.ps1"
+
+Invoke-Expression -Command "powershell.exe -ExecutionPolicy Bypass -File $installFile -Source Citrix_Windows_10_2009.xml -Mode Execute"
