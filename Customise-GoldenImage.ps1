@@ -56,13 +56,16 @@ While ($isInstalled -ne $true) {
     $isInstalled = CheckAppInstalled ($installedName)
 }
 
-# Install AU language packs
+# Setup AU language packs
 $fileName1 = "Microsoft-Windows-Client-Language-Pack_x64_en-gb.cab"
 $fileName2 = "Microsoft-Windows-LanguageFeatures-Basic-en-au-Package~31bf3856ad364e35~amd64~~.cab"
 $fileName3 = "Microsoft-Windows-LanguageFeatures-Handwriting-en-gb-Package~31bf3856ad364e35~amd64~~.cab"
 $fileName4 = "Microsoft-Windows-LanguageFeatures-OCR-en-gb-Package~31bf3856ad364e35~amd64~~.cab"
 $fileName5 = "Microsoft-Windows-LanguageFeatures-Speech-en-au-Package~31bf3856ad364e35~amd64~~.cab"
 $fileName6 = "Microsoft-Windows-LanguageFeatures-TextToSpeech-en-au-Package~31bf3856ad364e35~amd64~~.cab"
+$fileName7 = "Microsoft-Windows-Client-Language-Pack_x64_en-us.cab"
+$fileName8 = "Microsoft-Windows-LanguageFeatures-Basic-en-us-Package~31bf3856ad364e35~amd64~~.cab"
+$fileName9 = "Microsoft-Windows-LanguageFeatures-Handwriting-en-us-Package~31bf3856ad364e35~amd64~~.cab"
 
 # Download .cab files
 $blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName1"
@@ -77,14 +80,25 @@ $blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName5"
 (New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName5")
 $blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName6"
 (New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName6")
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName7"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName7")
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName8"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName8")
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName9"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName9")
 
-# Add langugage packs
+# Add AU langugage packs
 Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName1 /LogPath:$filePath\Logs\Install-ClientLanguagePack.log /LogLevel:4
 Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName2 /LogPath:$filePath\Logs\Install-BasicLanguagePack.log /LogLevel:4
 Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName3 /LogPath:$filePath\Logs\Install-HandwritingLanguagePack.log /LogLevel:4
 Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName4 /LogPath:$filePath\Logs\Install-OCRLanguagePack.log /LogLevel:4
 Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName5 /LogPath:$filePath\Logs\Install-SpeechLanguagePack.log /LogLevel:4
 Dism.exe /NoRestart /Online /Add-Package /PackagePath:$filePath\$fileName6 /LogPath:$filePath\Logs\Install-TextToSpeechLanguagePack.log /LogLevel:4
+
+# Remove US language packs
+Dism.exe /NoRestart /Online /Remove-Package /PackagePath:$filePath\$fileName7 /LogPath:$filePath\Logs\Remove-USClientLanguagePack.log /LogLevel:4
+Dism.exe /NoRestart /Online /Remove-Package /PackagePath:$filePath\$fileName8 /LogPath:$filePath\Logs\Remove-USBasicLanguagePack.log /LogLevel:4
+Dism.exe /NoRestart /Online /Remove-Package /PackagePath:$filePath\$fileName9 /LogPath:$filePath\Logs\Remove-USHandWritingRLanguagePack.log /LogLevel:4
 
 # Set machine locale and time zone
 $str = @'
