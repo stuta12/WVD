@@ -215,3 +215,10 @@ Invoke-Expression -Command "powershell.exe -ExecutionPolicy Bypass -File $instal
 # Add VM parameter to Azure Sysprep script - this prevents the first login from hanging on "Windows Modules Installer"
 ((Get-Content -path C:\DeprovisioningScript.ps1 -Raw) -replace 'Sysprep.exe /oobe /generalize /quiet /quit', 'Sysprep.exe /oobe /generalize /quit /mode:vm' ) `
 | Set-Content -Path C:\DeprovisioningScript.ps1
+
+# Import custom start menu and taskbar layout
+$fileName = "PUDStartLayout.xml"
+$blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName"
+(New-Object System.Net.WebClient).DownloadFile($blobUri, "$filePath\$fileName")
+Remove-Item -Path "$env:SystemDrive\Users\Default\AppData\Local\Microsoft\Windows\Shell\*" -Force
+Import-StartLayout -LayoutPath "$filePath\$fileName" -MountPath C:\
