@@ -124,6 +124,7 @@ WriteLog ""
 # Remove OneDrive
 WriteLog "Removing OneDrive"
 reg.exe load HKU\Temphive "C:\Users\Default\NTUSER.DAT"
+WriteLog "Deleting reg key HKU\Temphive\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\OneDriveSetup"
 reg delete "HKU\Temphive\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v OneDriveSetup /f
 reg.exe unload HKU\Temphive
 WriteLog ""
@@ -160,10 +161,12 @@ WriteLog "Replacing: Sysprep.exe /oobe /generalize /quiet /quit with: Sysprep.ex
 | Set-Content -Path C:\DeprovisioningScript.ps1
 
 # Remove IE11
+WriteLog "Removing IE11"
 $InstallStatus = (Get-WindowsOptionalFeature -FeatureName Internet-Explorer-Optional-amd64 –Online)
 
 If ($InstallStatus.state -eq 'Enabled') {
     # Note that the removal requires a reboot
+    WriteLog "IE11 is installed, executing command: Disable-WindowsOptionalFeature -FeatureName Internet-Explorer-Optional-amd64 –Online -NoRestart"
     Disable-WindowsOptionalFeature -FeatureName Internet-Explorer-Optional-amd64 –Online -NoRestart
 }
 
