@@ -64,7 +64,7 @@ $blobUri = "https://$storageAccount.blob.core.windows.net/$container/$fileName"
 $installFile = "$filePath\$fileName"
 WriteLog "Downloading file $blobUri"
 (New-Object System.Net.WebClient).DownloadFile($blobUri, $installFile)
-$argList = '/components VDA', '/controllers "vm-pud-ctxcc001.thepud.net vm-pud-ctxcc002.thepud.net"', '/masterimage', '/noreboot', '/quiet', '/virtualmachine', '/enable_hdx_ports', '/enable_hdx_udp_ports', `
+$argList = '/components VDA', '/controllers "server1.domain server2.domain"', '/masterimage', '/noreboot', '/quiet', '/virtualmachine', '/enable_hdx_ports', '/enable_hdx_udp_ports', `
     '/enable_real_time_transport', '/enable_remote_assistance', '/exclude "Citrix Personalization for App-V - VDA"', "/logpath `"$filePath\Logs\Install-CitrixVDA.log`""
 WriteLog "Executing command: Invoke-Expression -Command $installFile $argList"
 Invoke-Expression -Command "$installFile $argList"
